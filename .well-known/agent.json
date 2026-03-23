@@ -1,0 +1,22 @@
+{
+  "name": "Master Intelligence Prompt",
+  "description": "A comprehensive AI prompt reference tool — interactive single-page guide to the most powerful prompting techniques, frameworks, and patterns for large language models.",
+  "url": "https://sachinai1981-web.github.io/master-prompt",
+  "contact": {
+    "email": "sachinai1981@gmail.com",
+    "type": "human"
+  },
+  "owner": {
+    "name": "Sachin Rai",
+    "role": "Enterprise Sales Professional",
+    "company": "Freshworks",
+    "linkedin": "https://linkedin.com/in/sachinrai"
+  },
+  "capabilities": [
+    "Browse structured prompt frameworks by category",
+    "Copy-ready prompt patterns for LLM use",
+    "Interactive sidebar navigation across prompt types"
+  ],
+  "agent_instructions": "Navigate to https://sachinai1981-web.github.io/master-prompt — the tool is a single HTML page with a sidebar for browsing prompt categories and a main panel for viewing full prompt frameworks and examples. No interaction required beyond browsing.",
+  "llms_txt": "https://sachinai1981-web.github.io/master-prompt/llms.txt"
+}

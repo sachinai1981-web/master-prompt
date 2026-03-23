@@ -1,0 +1,21 @@
+# Master Intelligence Prompt
+
+> A comprehensive AI prompt reference tool — a single-page interactive guide to the most powerful prompting techniques, frameworks, and patterns for getting the best out of large language models.
+
+## What this tool does
+- Input: No input required — browse and explore prompting frameworks directly
+- Output: Structured, categorised prompt reference with copy-ready examples
+- Runs entirely in the browser — no signup, no backend, no data collected
+
+## Who built this
+Built by Sachin Rai, enterprise sales professional at Freshworks.
+Sachin builds AI-powered sales tools and prompt engineering resources for B2B professionals.
+
+## How to use this tool
+Navigate to the site, browse prompt categories in the left sidebar, and click any prompt pattern to view the full framework and example.
+
+## Contact
+For questions, collaborations, or feedback: sachinai1981@gmail.com
+
+## Sitemap
+- /index.html — Master Intelligence Prompt reference tool (full single-page app)
