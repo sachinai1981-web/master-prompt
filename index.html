@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Intelligence Prompt</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Fraunces:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #181818;
+    --surface2: #222222;
+    --border: #2e2e2e;
+    --border2: #3a3a3a;
+    --text: #e8e6e0;
+    --text2: #9a9890;
+    --text3: #5a5856;
+    --accent: #c8f060;
+    --accent2: #60c8f0;
+    --amber: #f0c860;
+    --coral: #f07060;
+    --purple: #a090f0;
+    --green-dim: #3a4a2a;
+    --green-bright: #c8f060;
+    --blue-dim: #1a2a3a;
+    --blue-bright: #60c8f0;
+    --amber-dim: #3a2a0a;
+    --amber-bright: #f0c860;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-logo .title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .sidebar-logo .subtitle {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .sidebar-section {
+    padding: 0 20px;
+    margin-bottom: 20px;
+  }
+
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    transition: all .15s;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--surface2); color: var(--accent); }
+
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border2);
+    flex-shrink: 0;
+  }
+
+  .nav-item.active .nav-dot { background: var(--accent); }
+
+  .lens-chip {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    transition: all .15s;
+  }
+  .lens-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .lens-chip.active { background: var(--green-dim); border-color: var(--accent); color: var(--accent); }
+
+  /* MAIN */
+  .main {
+    padding: 32px 40px;
+    max-width: 900px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-header {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .page-header p {
+    color: var(--text2);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  .prompt-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .prompt-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .prompt-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  .prompt-toolbar-left span {
+    color: var(--accent);
+  }
+
+  .btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--text2);
+    transition: all .15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn:hover { background: var(--surface2); color: var(--text); border-color: var(--text3); }
+
+  .btn-primary {
+    background: var(--green-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-primary:hover { background: var(--accent); color: var(--bg); }
+
+  .prompt-body {
+    padding: 20px 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .prompt-body::-webkit-scrollbar { width: 4px; }
+  .prompt-body::-webkit-scrollbar-track { background: transparent; }
+  .prompt-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* Syntax highlighting */
+  .prompt-body .h1 { color: var(--accent); font-weight: 500; }
+  .prompt-body .h2 { color: var(--accent2); }
+  .prompt-body .h3 { color: var(--amber); }
+  .prompt-body .label { color: var(--purple); }
+  .prompt-body .comment { color: var(--text3); font-style: italic; }
+  .prompt-body .star { color: var(--coral); }
+  .prompt-body .bracket { color: var(--text3); }
+
+  /* Info cards */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+
+  .info-card-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text3);
+    margin-bottom: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .info-card-value {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  /* Section map */
+  .section-map {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+
+  .section-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .section-id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 32px;
+  }
+
+  .section-name {
+    font-size: 13px;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .section-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .badge-p1 { background: var(--blue-dim); color: var(--blue-bright); border: 1px solid #2a4a6a; }
+  .badge-p2 { background: var(--green-dim); color: var(--green-bright); border: 1px solid #4a6a2a; }
+  .badge-new { background: var(--amber-dim); color: var(--amber-bright); border: 1px solid #6a4a0a; }
+  .badge-lens { background: #2a1a3a; color: var(--purple); border: 1px solid #4a2a6a; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+  .tip-list { display: flex; flex-direction: column; gap: 8px; }
+  .tip { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+  .tip-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text3); min-width: 20px; padding-top: 2px; }
+  .tip-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .tip-text strong { color: var(--text); font-weight: 500; }
+  .tip-code { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent2); background: var(--blue-dim); padding: 1px 6px; border-radius: 4px; }
+
+  .lens-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .lens-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .lens-card:hover { border-color: var(--border2); }
+  .lens-card.active { border-color: var(--accent); background: var(--green-dim); }
+
+  .lens-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .lens-card.active .lens-card-title { color: var(--accent); }
+  .lens-card-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="title">Master Intelligence<br>Prompt</div>
+      <div class="subtitle">v4 — Final Build</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Pages</div>
+      <div class="nav-item active" onclick="showPage('overview')">
+        <div class="nav-dot"></div>Overview
+      </div>
+      <div class="nav-item" onclick="showPage('prompt')">
+        <div class="nav-dot"></div>Full prompt
+      </div>
+      <div class="nav-item" onclick="showPage('lenses')">
+        <div class="nav-dot"></div>Lens variants
+      </div>
+      <div class="nav-item" onclick="showPage('howto')">
+        <div class="nav-dot"></div>How to use
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Quick lenses</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;">
+        <span class="lens-chip active" onclick="selectLens('base', this)">Base</span>
+        <span class="lens-chip" onclick="selectLens('sales', this)">Sales</span>
+        <span class="lens-chip" onclick="selectLens('venture', this)">Venture</span>
+        <span class="lens-chip" onclick="selectLens('investor', this)">Investor</span>
+        <span class="lens-chip" onclick="selectLens('obsidian', this)">Obsidian</span>
+        <span class="lens-chip" onclick="selectLens('learning', this)">Learning</span>
+        <span class="lens-chip" onclick="selectLens('content', this)">Content</span>
+        <span class="lens-chip" onclick="selectLens('streakmate', this)">StreakMate</span>
+        <span class="lens-chip" onclick="selectLens('ghost', this)">Ghost only</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Structure</div>
+      <div style="font-size:12px;color:var(--text3);line-height:1.8;font-family:'IBM Plex Mono',monospace;">
+        Part 1 — Capture<br>
+        Part 2 — Connect<br>
+        Part 3 — Build<br>
+        Lens — Your filter
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- OVERVIEW PAGE -->
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <h1>What this prompt does</h1>
+        <p>A complete intelligence system for extracting maximum value from any content — transcript, article, podcast, book, or interview. Every section traces back to the source. Nothing is invented.</p>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-label">Core principle</div>
+          <div class="info-card-value">Part 2 strategy must trace to Part 1 source notes. The transcript is the truth. Everything else is interpretation.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">What's new in this version</div>
+          <div class="info-card-value">Assumptions audit, 7-day actions, who to talk to, content quality score, cross-field connections, content type header, 1G gaps section, investor + learning + content creator lenses.</div>
+        </div>
+      </div>
+
+      <div class="section-map">
+        <div class="section-row"><span class="section-id">HEADER</span><span class="section-name">Content type, length, source credibility</span><span class="section-badge badge-new">New</span></div>
+        <div class="section-row"><span class="section-id">1A</span><span class="section-name">Core thesis</span><span class="section-badge badge-p1">Part 1</span></div>
+        <div class="section-row"><span class="section-id">1B</span><span class="section-name">Key ideas & teachings — full notes</span><span class="section-badge badge-p1">Part 1</span></div>
+        <div class="section-row"><span class="section-id">1C</span><span class="section-name">Frameworks & mental models</span><span class="section-badge badge-p1">Part 1</span></div>
+        <div class="section-row"><span class="section-id">1D</span><span class="section-name">People, companies & resources mentioned</span><span class="section-badge badge-p1">Part 1</span></div>
+        <div class="section-row"><span class="section-id">1E</span><span class="section-name">Data, statistics & specific claims</span><span class="section-badge badge-p1">Part 1</span></div>
+        <div class="section-row"><span class="section-id">1F</span><span class="section-name">What the author recommends</span><span class="section-badge badge-p1">Part 1</span></div>
+        <div class="section-row"><span class="section-id">1G</span><span class="section-name">What this content didn't cover</span><span class="section-badge badge-new">New</span></div>
+        <div class="section-row"><span class="section-id">2A</span><span class="section-name">Ghost notes — what wasn't said</span><span class="section-badge badge-p2">Part 2</span></div>
+        <div class="section-row"><span class="section-id">2B</span><span class="section-name">Key concepts worth going deeper on</span><span class="section-badge badge-p2">Part 2</span></div>
+        <div class="section-row"><span class="section-id">2C</span><span class="section-name">Business & venture opportunities</span><span class="section-badge badge-p2">Part 2</span></div>
+        <div class="section-row"><span class="section-id">2D</span><span class="section-name">Prompts I can use</span><span class="section-badge badge-p2">Part 2</span></div>
+        <div class="section-row"><span class="section-id">2E</span><span class="section-name">Projects I can build — ranked by leverage</span><span class="section-badge badge-p2">Part 2</span></div>
+        <div class="section-row"><span class="section-id">2F</span><span class="section-name">Trends spotted</span><span class="section-badge badge-p2">Part 2</span></div>
+        <div class="section-row"><span class="section-id">2G</span><span class="section-name">Companies that could be formed</span><span class="section-badge badge-p2">Part 2</span></div>
+        <div class="section-row"><span class="section-id">2H</span><span class="section-name">Assumptions audit</span><span class="section-badge badge-new">New</span></div>
+        <div class="section-row"><span class="section-id">2I</span><span class="section-name">What to do in the next 7 days</span><span class="section-badge badge-new">New</span></div>
+        <div class="section-row"><span class="section-id">2J</span><span class="section-name">Who should I talk to?</span><span class="section-badge badge-new">New</span></div>
+        <div class="section-row"><span class="section-id">2K</span><span class="section-name">Content quality assessment</span><span class="section-badge badge-new">New</span></div>
+        <div class="section-row"><span class="section-id">2L</span><span class="section-name">Connections to existing knowledge</span><span class="section-badge badge-new">New</span></div>
+        <div class="section-row"><span class="section-id">LENS</span><span class="section-name">Optional filter applied on top</span><span class="section-badge badge-lens">Lens</span></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="showPage('prompt'); showPage('prompt');" style="margin-top:4px;">
+        View full prompt →
+      </button>
+    </div>
+
+    <!-- FULL PROMPT PAGE -->
+    <div class="page" id="page-prompt">
+      <div class="page-header">
+        <h1>Full prompt</h1>
+        <p>Copy this entire prompt, then paste your content at the bottom where indicated. Choose a lens from the sidebar to add a filter on top.</p>
+      </div>
+
+      <div class="prompt-container">
+        <div class="prompt-toolbar">
+          <div class="prompt-toolbar-left">
+            <span id="active-lens-label">Base</span> lens · <span id="section-count">21 sections</span>
+          </div>
+          <button class="btn btn-primary" onclick="copyPrompt()">Copy full prompt</button>
+        </div>
+        <div class="prompt-body" id="prompt-display"></div>
+      </div>
+    </div>
+
+    <!-- LENSES PAGE -->
+    <div class="page" id="page-lenses">
+      <div class="page-header">
+        <h1>Lens variants</h1>
+        <p>Each lens adds a context block at the top of the base prompt. The structure stays the same — the filter changes. Select one then copy from the Full prompt tab.</p>
+      </div>
+
+      <div class="lens-grid" id="lens-grid">
+        <div class="lens-card active" data-lens="base" onclick="pickLens('base', this)">
+          <div class="lens-card-title">Base</div>
+          <div class="lens-card-desc">No filter. Full analysis. Use when you want the complete picture with no specific angle applied.</div>
+        </div>
+        <div class="lens-card" data-lens="sales" onclick="pickLens('sales', this)">
+          <div class="lens-card-title">Sales</div>
+          <div class="lens-card-desc">Enterprise seller lens. Surfaces buyer pain, objection handling, talk tracks, and competitive intelligence. Generic — not tied to any company.</div>
+        </div>
+        <div class="lens-card" data-lens="venture" onclick="pickLens('venture', this)">
+          <div class="lens-card-title">Venture builder</div>
+          <div class="lens-card-desc">Weights sections 2C and 2G heavily. Focused on market gaps, MVPs, and company formation. For founders and operators.</div>
+        </div>
+        <div class="lens-card" data-lens="investor" onclick="pickLens('investor', this)">
+          <div class="lens-card-title">Investor</div>
+          <div class="lens-card-desc">Portfolio and LP lens. Market timing, macro tailwinds, funding landscape, risk/reward on a 5–7 year horizon.</div>
+        </div>
+        <div class="lens-card" data-lens="obsidian" onclick="pickLens('obsidian', this)">
+          <div class="lens-card-title">Obsidian vault</div>
+          <div class="lens-card-desc">Outputs atomic notes with [[wikilinks]], #tags, and connection suggestions. Paste directly into your knowledge vault.</div>
+        </div>
+        <div class="lens-card" data-lens="learning" onclick="pickLens('learning', this)">
+          <div class="lens-card-title">Learning accelerator</div>
+          <div class="lens-card-desc">Builds a curriculum from the content. Prerequisite map, what to study next, spaced repetition flashcards, 30-day plan.</div>
+        </div>
+        <div class="lens-card" data-lens="content" onclick="pickLens('content', this)">
+          <div class="lens-card-title">Content creator</div>
+          <div class="lens-card-desc">Extracts shareable insights, contrarian takes, LinkedIn posts, and thread ideas for building a public presence from what you learn.</div>
+        </div>
+        <div class="lens-card" data-lens="streakmate" onclick="pickLens('streakmate', this)">
+          <div class="lens-card-title">StreakMate pitch</div>
+          <div class="lens-card-desc">Flags [STREAKMATE SIGNAL] inline. Focused on sales productivity, AI-assisted selling, and seed-stage VC narrative building.</div>
+        </div>
+        <div class="lens-card" data-lens="ghost" onclick="pickLens('ghost', this)">
+          <div class="lens-card-title">Ghost notes only</div>
+          <div class="lens-card-desc">Standalone deep-dive into what wasn't said. Best run separately for maximum contrarian thinking.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW TO USE PAGE -->
+    <div class="page" id="page-howto">
+      <div class="page-header">
+        <h1>How to use this</h1>
+        <p>A few patterns that make this prompt dramatically more useful.</p>
+      </div>
+
+      <div class="tip-list">
+        <div class="tip">
+          <span class="tip-num">01</span>
+          <span class="tip-text"><strong>Always fill in the header fields first.</strong> <span class="tip-code">CONTENT TYPE</span>, <span class="tip-code">CONTENT LENGTH</span>, and <span class="tip-code">SOURCE CREDIBILITY</span> change how the AI weights everything. A founder's podcast is read differently than a peer-reviewed paper.</span>
+        </div>
+        <div class="tip">
+          <span class="tip-num">02</span>
+          <span class="tip-text"><strong>Paste the full transcript — never summarize it first.</strong> If you pre-compress, you lose the examples and stories that make the notes real. The AI needs the raw material.</span>
+        </div>
+        <div class="tip">
+          <span class="tip-num">03</span>
+          <span class="tip-text"><strong>Run the Ghost Notes lens separately</strong> after the base run for richer divergent thinking. Use the <span class="tip-code">stochastic-multi-agent-consensus</span> skill to spawn 5 agents on the ghost notes prompt and aggregate the divergent reads.</span>
+        </div>
+        <div class="tip">
+          <span class="tip-num">04</span>
+          <span class="tip-text"><strong>Stack lenses sequentially.</strong> Run Base first → then pipe the output into the Obsidian vault lens to convert it to atomic notes. Or run Venture first → then Ghost notes only on the Part 2 output to push the opportunities further.</span>
+        </div>
+        <div class="tip">
+          <span class="tip-num">05</span>
+          <span class="tip-text"><strong>Section 2I (7-day actions) is the most important section.</strong> If nothing moves from a learning session into a concrete action, the notes don't compound. Always use this section before closing the conversation.</span>
+        </div>
+        <div class="tip">
+          <span class="tip-num">06</span>
+          <span class="tip-text"><strong>For StreakMate pitch research:</strong> run the StreakMate lens on investor talks, YC essays, and sales tech competitor announcements weekly. The [STREAKMATE SIGNAL] flags surface the relevant signal without reading everything.</span>
+        </div>
+        <div class="tip">
+          <span class="tip-num">07</span>
+          <span class="tip-text"><strong>Section 2K (content quality score) is your calibration check.</strong> Before acting on section 2I, read 2K. If the signal-to-noise is low or the author's credibility is weak, downgrade how aggressively you act.</span>
+        </div>
+        <div class="tip">
+          <span class="tip-num">08</span>
+          <span class="tip-text"><strong>Section 2L (cross-field connections) generates your best Obsidian links.</strong> The ideas that connect across domains — psychology into sales, physics into business strategy — are the ones worth building permanent notes around.</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const LENSES = {
+  base: { label: 'Base', prefix: '' },
+  sales: {
+    label: 'Sales',
+    prefix: `LENS: ENTERPRISE SALES
+You are a senior sales strategist and intelligence analyst. I am an enterprise B2B sales professional analyzing this content to become a sharper, more effective seller. Filter every section through the lens of someone who sells complex solutions to large organizations, manages long deal cycles, and operates in competitive markets. Do not tie analysis to any specific company, product, or industry — think broadly about what any skilled enterprise seller could learn and apply.
+Mark any insight a seller could directly use with [SALES SIGNAL].
+
+`
+  },
+  venture: {
+    label: 'Venture builder',
+    prefix: `LENS: VENTURE BUILDER
+WEIGHTING: Sections 2C (Business & Venture Opportunities) and 2G (Companies That Could Be Formed) are the primary deliverable — give them 60% of your analytical effort. Every other section feeds into these two. Do not skip Part 1 — the opportunities must trace to the source content.
+
+`
+  },
+  investor: {
+    label: 'Investor',
+    prefix: `LENS: THESIS-DRIVEN INVESTOR
+Analyze this content as a portfolio investor evaluating a space on a 5–7 year horizon. In addition to the standard sections, add throughout:
+- What macro tailwind does this content reveal?
+- What stage of the market cycle is this space in?
+- Who is currently funding in this space and at what valuations?
+- What would make you pass on every company in this space?
+- What would a 10x return thesis look like here?
+Flag investment-relevant signals with [INVEST SIGNAL].
+
+`
+  },
+  obsidian: {
+    label: 'Obsidian vault',
+    prefix: `LENS: OBSIDIAN KNOWLEDGE VAULT
+Format ALL output for direct import into an Obsidian knowledge vault:
+- Wrap all key concepts, people, companies, and frameworks in [[wikilinks]]
+- Use #tags at the end of each atomic note
+- Use > blockquote format for memorable lines worth preserving
+- Add a "Connections:" line to each note with 2–3 related [[links]]
+- Part 1 notes must be atomic — each idea self-contained, readable without the others
+- Format tables as Markdown tables where applicable
+
+`
+  },
+  learning: {
+    label: 'Learning accelerator',
+    prefix: `LENS: LEARNING ACCELERATOR
+Analyze this content as a learning designer building a curriculum. In addition to the standard sections, add at the end:
+- What prerequisite knowledge does someone need to fully understand this content?
+- What should I read, watch, or study NEXT to go deeper on the top 3 ideas?
+- 10 spaced repetition flashcard questions (Q: / A: format) from the Part 1 notes
+- The one mental model from this content worth memorizing permanently
+- A 30-day learning plan to fully master the subject of this content
+
+`
+  },
+  content: {
+    label: 'Content creator',
+    prefix: `LENS: THOUGHT LEADER & CONTENT CREATOR
+Analyze this content for public insight extraction. In addition to the standard sections, add:
+- The single most shareable insight from this content (one sentence)
+- The contrarian hot take that would generate real discussion
+- 3 LinkedIn post ideas grounded in Part 1 ideas (title + 2-line hook each)
+- 2 long-form thread or essay angles
+- The personal story or experience that would best frame this content for an audience
+Flag content-worthy moments with [CONTENT SIGNAL].
+
+`
+  },
+  streakmate: {
+    label: 'StreakMate pitch',
+    prefix: `LENS: STREAKMATE PITCH INTELLIGENCE
+I am building StreakMate — a browser-connected sales productivity intelligence tool for enterprise B2B sellers, currently preparing for a seed-stage VC pitch. Throughout your analysis, flag any insight relevant to: B2B sales productivity, AI-assisted selling, browser-native productivity tools, enterprise seller workflows, the sales tech competitive landscape (CRM, SEP, revenue intelligence), and investor narratives around AI + GTM engineering.
+Mark these [STREAKMATE SIGNAL] inline wherever they appear. Add a [STREAKMATE FIT: High/Medium/Low] rating to each item in section 2C.
+
+`
+  },
+  ghost: {
+    label: 'Ghost notes only',
+    prefix: `MODE: GHOST NOTES ONLY
+Skip the standard section structure. Your ONLY job is to surface what wasn't said.
+
+PART 1 — WHAT WAS ACTUALLY SAID (Brief)
+Write tight but complete notes: core thesis, key ideas, examples, data, recommendations. Do not analyze yet.
+
+PART 2 — GHOST NOTES
+10–15 ghost notes. For each, cite its Part 1 source. Structure:
+### [Provocative title]
+Source: [Part 1 idea]
+What was implied but not said: ...
+The deeper question this raises: ...
+The opportunity hiding here: ...
+The contrarian read: ...
+Who benefits if this is true: ...
+
+SYNTHESIS
+The One Thing Nobody Is Saying: 3–5 sentences on the insight the author didn't say directly.
+The 10x Version: The boldest implied idea taken to its maximum ambition — what company, movement, or technology does it become?
+Three Questions to Act On: The most important questions to research or move on now.
+
+`
+  }
+};
+
+const BASE_PROMPT = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MASTER INTELLIGENCE PROMPT — v4
+Complete content analysis system
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONTENT HEADER — fill this in before running
+────────────────────────────────────────
+CONTENT TYPE:      [YouTube video / podcast / article / book chapter / sales call transcript / investor memo / conference talk / interview]
+CONTENT LENGTH:    [approx. duration or word count]
+SOURCE CREDIBILITY:[practitioner / researcher / journalist / founder / investor / journalist / unknown]
+CONTENT TITLE:     [title or short description]
+────────────────────────────────────────
+
+INSTRUCTIONS
+You are a senior strategist, knowledge curator, and builder. I am giving you a piece of content. Your job has two parts. Do NOT skip Part 1. Part 2 is worthless without it.
+
+The rule that holds everything together: every insight in Part 2 must be traceable to a specific note in Part 1. If it cannot be traced, do not include it. The source content is the truth. The strategy is the interpretation. Never the other way around.
+
+══════════════════════════════════════
+PART 1 — CAPTURE THE CONTENT FAITHFULLY
+══════════════════════════════════════
+
+Write detailed, faithful notes from the actual content. If someone reads your notes without ever watching the video or reading the article, they should come away with a complete understanding of what was taught, argued, or demonstrated. Do not compress. Do not skip examples, stories, frameworks, or specific advice. Capture everything.
+
+## 1A. Core Thesis
+What is the central argument or main idea? (2–4 sentences)
+
+## 1B. Key Ideas & Teachings — Full Notes
+For each distinct idea in the content:
+
+**[Idea title]**
+What was said: [Full explanation in your own words — do not compress]
+Example or story used: [If the author gave one, include it fully]
+Key phrase: [If they said something memorable, capture it exactly]
+
+(Repeat for every distinct idea — do not skip any)
+
+## 1C. Frameworks & Mental Models
+Every framework, model, system, or process described — explained fully. Not just named. If the author walked through a step-by-step process, capture every step.
+
+## 1D. People, Companies & Resources Mentioned
+Every name, company, book, tool, or resource referenced — with context for why they were mentioned and what role they play.
+
+## 1E. Data, Statistics & Specific Claims
+Any numbers, research findings, timelines, percentages, or specific factual claims made. Include the source context for each.
+
+## 1F. What the Author Recommends
+If the author gave actionable advice, steps, or recommendations — list them exactly as given. Do not paraphrase or compress.
+
+## 1G. What This Content Didn't Cover
+Still in Part 1 — purely descriptive, no strategic analysis yet:
+- What important questions did the author not answer?
+- What perspective or counterargument was absent?
+- What topics were mentioned briefly but not developed?
+- What would a skeptic want addressed that wasn't?
+
+══════════════════════════════════════
+PART 2 — STRATEGIC PERSPECTIVE
+══════════════════════════════════════
+
+Everything below must reference a specific idea from Part 1. State the source (e.g., "From 1B — [idea title]") for each key insight.
+
+## 2A. Ghost Notes — What Wasn't Said
+Surface the hidden signal in the content. For each ghost note, cite the Part 1 idea it builds on:
+- What problem is being described that no one is solving yet?
+- What assumption is everyone in this space making that could be wrong?
+- What would happen if you took the boldest idea here 10x further?
+- What is the contrarian read on this content?
+- What is the idea that was one sentence away from being said?
+
+## 2B. Key Concepts Worth Going Deeper On
+From Part 1 — which 3–5 ideas are most worth researching further? For each: what you'd learn and why it matters now.
+
+## 2C. Business & Venture Opportunities
+Grounded in the content captured above. For each opportunity:
+- Gap / pain point (specific — who hurts, how much, how often)
+- Target customer
+- Business model
+- Unfair advantage for a builder entering NOW
+- MVP definition
+- Who gets disrupted
+- Part 1 source idea
+
+## 2D. Prompts I Can Use
+10 high-leverage follow-up prompts based on what was actually in the content:
+- Research prompts (go find X — from the content)
+- Synthesis prompts (connect this idea from the content to Y)
+- Builder prompts (help me build Z based on what was taught)
+- Devil's advocate prompts (challenge assumption W from the content)
+
+## 2E. Projects I Can Build — Ranked by Leverage
+5–10 concrete projects ranked highest to lowest leverage. For each:
+Project | Why now | Time to first working version | Skills needed | Part 1 source idea
+
+## 2F. Trends Spotted
+What directional signals does this content reveal?
+- Macro trends (3–5 year horizon)
+- Micro trends (next 6–18 months)
+- Weak signals (early, not yet mainstream)
+- Technologies or behaviors accelerating things
+For each trend, cite the Part 1 idea it comes from.
+
+## 2G. Companies That Could Be Formed
+Top 3 company concepts — each grounded in a specific Part 1 gap:
+- Working name + one-line pitch
+- Problem (from the content — specific and painful)
+- Solution hypothesis
+- Go-to-market: how do you get the first 10 customers?
+- Investor type and thesis fit
+- Ideal founding team profile
+
+## 2H. Assumptions Audit
+List the top 5–7 assumptions the author is making — things stated or implied as true without being proven. For each:
+- The assumption
+- How confident the author seems in it (high / medium / low)
+- What happens to the whole argument if this assumption is wrong
+- Who would disagree with this assumption, and why
+
+## 2I. What to Do in the Next 7 Days
+Based on everything above, what are the 3–5 most important actions to take this week? For each:
+- The action (specific and doable in under a day)
+- Why this one first — what does it unlock?
+- Which Part 1 or Part 2 insight it comes from
+- How to know if it worked
+
+## 2J. Who Should I Talk To?
+Based on the ideas in Part 1, what types of people would most accelerate understanding or create opportunity?
+- Who is actively working on this problem right now? (describe the type of person)
+- Who has already solved a version of this?
+- Who would challenge my interpretation most usefully?
+- Where do these people gather — communities, events, platforms, online spaces?
+
+## 2K. Content Quality Assessment
+Rate this content honestly before acting on it:
+- Signal-to-noise ratio (1–10): how much is substance vs filler?
+- Evidence quality: is the reasoning backed by data, experience, or just assertion?
+- Potential biases: what agenda or blind spot may be shaping this content?
+- Author's authority on this topic: how credible are they specifically here?
+- Overall verdict: how much should this be weighted vs other sources on this topic?
+
+## 2L. Connections to Existing Knowledge
+What concepts from broader fields or existing knowledge connect to the ideas in Part 1?
+- Which ideas confirm or extend things already well understood?
+- Which ideas contradict or challenge existing beliefs?
+- What field or discipline does this content secretly belong to?
+- What would someone from a completely different field (psychology, physics, history, biology) say about this content?
+- What is the oldest version of this idea — has it appeared before under a different name?
+
+══════════════════════════════════════
+PASTE YOUR FULL CONTENT BELOW
+Do not summarize or compress before pasting.
+Keep the full transcript / article / transcript intact.
+══════════════════════════════════════
+
+[PASTE YOUR FULL CONTENT HERE]`;
+
+let currentLens = 'base';
+
+function buildPrompt(lens) {
+  const lensData = LENSES[lens];
+  if (lens === 'ghost') {
+    return lensData.prefix + '\n[PASTE YOUR FULL CONTENT HERE]';
+  }
+  if (lensData.prefix) {
+    return lensData.prefix + BASE_PROMPT;
+  }
+  return BASE_PROMPT;
+}
+
+function renderPrompt(lens) {
+  const text = buildPrompt(lens);
+  const el = document.getElementById('prompt-display');
+  el.innerHTML = syntaxHighlight(text);
+  document.getElementById('active-lens-label').textContent = LENSES[lens].label;
+}
+
+function syntaxHighlight(text) {
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/^(━+)$/gm, '<span class="comment">$1</span>')
+    .replace(/^(═+)$/gm, '<span class="comment">$1</span>')
+    .replace(/^(─+)$/gm, '<span class="comment">$1</span>')
+    .replace(/^(## \d+[A-Z]\..+)$/gm, '<span class="h2">$1</span>')
+    .replace(/^(### .+)$/gm, '<span class="h3">$1</span>')
+    .replace(/^(PART \d+.+)$/gm, '<span class="h1">$1</span>')
+    .replace(/^(LENS:.+)$/gm, '<span class="h1">$1</span>')
+    .replace(/^(MODE:.+)$/gm, '<span class="h1">$1</span>')
+    .replace(/^(INSTRUCTIONS|CONTENT HEADER.+|PASTE YOUR FULL.+|Do not summarize.+|Keep the full.+)$/gm, '<span class="comment">$1</span>')
+    .replace(/^(CONTENT TYPE:.+|CONTENT LENGTH:.+|SOURCE CREDIBILITY:.+|CONTENT TITLE:.+|WEIGHTING:.+)$/gm, '<span class="label">$1</span>')
+    .replace(/(\[PASTE YOUR FULL CONTENT HERE\])/g, '<span class="star">$1</span>')
+    .replace(/(\★)/g, '<span class="star">$1</span>')
+    .replace(/(\[.+?\])/g, '<span class="bracket">$1</span>');
+}
+
+function copyPrompt() {
+  navigator.clipboard.writeText(buildPrompt(currentLens)).then(() => {
+    const btn = document.querySelector('.btn-primary');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(name)) {
+      n.classList.add('active');
+    }
+  });
+  if (name === 'prompt') renderPrompt(currentLens);
+}
+
+function selectLens(lens, el) {
+  currentLens = lens;
+  document.querySelectorAll('.lens-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderPrompt(lens);
+  showPage('prompt');
+}
+
+function pickLens(lens, el) {
+  currentLens = lens;
+  document.querySelectorAll('.lens-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.lens-chip').forEach(c => {
+    c.classList.toggle('active', c.getAttribute('onclick') && c.getAttribute('onclick').includes("'" + lens + "'"));
+  });
+}
+
+renderPrompt('base');
+</script>
+</body>
+</html>
