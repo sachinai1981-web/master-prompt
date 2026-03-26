@@ -377,6 +377,9 @@
       <div class="nav-item" onclick="showPage('howto')">
         <div class="nav-dot"></div>How to use
       </div>
+      <div class="nav-item" onclick="showPage('growth')">
+        <div class="nav-dot"></div>Personal Growth
+      </div>
     </div>
 
     <div class="sidebar-section">
@@ -560,6 +563,43 @@
           <span class="tip-num">08</span>
           <span class="tip-text"><strong>Section 2L (cross-field connections) generates your best Obsidian links.</strong> The ideas that connect across domains — psychology into sales, physics into business strategy — are the ones worth building permanent notes around.</span>
         </div>
+      </div>
+    </div>
+
+    <!-- PERSONAL GROWTH PAGE -->
+    <div class="page" id="page-growth">
+      <div class="page-header">
+        <h1>Personal Growth Extraction</h1>
+        <p>Paste any transcript, podcast summary, article, or book chapter. This prompt extracts lessons, surfaces blind spots, builds a 30-day experiment, and generates spaced repetition cards so insights actually stick.</p>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-label">Best used for</div>
+          <div class="info-card-value">Podcasts, YouTube transcripts, book summaries, interviews, talk notes</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">What makes it different</div>
+          <div class="info-card-value">Blind spot finder + contradiction detector + 30-day experiment + spaced repetition cards — not just a summary</div>
+        </div>
+      </div>
+
+      <div class="section-map">
+        <div class="section-row"><span class="section-id">EXTRACT</span><span class="section-name">Core lessons, mindset shifts, quotes worth saving</span><span class="section-badge badge-p1">Part 1</span></div>
+        <div class="section-row"><span class="section-id">DEEPER</span><span class="section-name">Blind spot finder + contradiction detector</span><span class="section-badge badge-new">New</span></div>
+        <div class="section-row"><span class="section-id">ACTION</span><span class="section-name">This-week actions + 30-day experiment with success metric</span><span class="section-badge badge-p2">Part 2</span></div>
+        <div class="section-row"><span class="section-id">STICK</span><span class="section-name">Spaced repetition cards + teach-it-back + reflection trigger</span><span class="section-badge badge-new">New</span></div>
+        <div class="section-row"><span class="section-id">CONTEXT</span><span class="section-name">Apply to your specific role and situation</span><span class="section-badge badge-lens">Lens</span></div>
+      </div>
+
+      <div class="prompt-container">
+        <div class="prompt-toolbar">
+          <div class="prompt-toolbar-left">
+            <span>Personal Growth v2</span> · <span>10 sections</span>
+          </div>
+          <button class="btn btn-primary" onclick="copyGrowthPrompt()">Copy full prompt</button>
+        </div>
+        <div class="prompt-body" id="growth-prompt-display"></div>
       </div>
     </div>
 
@@ -903,6 +943,105 @@ function pickLens(lens, el) {
 }
 
 renderPrompt('base');
+
+const GROWTH_PROMPT = `You are a personal growth coach, learning extractor, and thinking partner.
+
+I'm going to give you a [transcript / summary / article / podcast notes].
+
+Your job is to go deep — not just summarise, but help me think, act, and remember.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 1 — EXTRACT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## 1. Core Lessons
+The 3-5 most important ideas for personal growth from this content.
+
+## 2. Mindset Shifts
+What beliefs or mental models does this challenge or reinforce?
+For each shift: what I might have believed before vs what this suggests instead.
+
+## 3. Quotes Worth Saving
+2-3 lines worth re-reading. The kind you'd write on a post-it note.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 2 — GO DEEPER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## 4. Blind Spot Finder
+What is the speaker NOT saying that's worth noting?
+What assumption are they making that could be wrong?
+What perspective is completely absent from this content?
+
+## 5. Contradiction Detector
+What does this challenge that I might already believe?
+Where might I resist this lesson — and why is that resistance worth examining?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 3 — MAKE IT ACTIONABLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## 6. Actions I Can Take This Week
+Specific, small, doable. No vague advice. What can I actually do in the next 7 days?
+
+## 7. 30-Day Experiment
+Take the single best lesson and turn it into a testable experiment.
+
+Hypothesis: If I do [X] for 30 days, I expect [Y outcome]
+Daily behaviour: [The specific action — one sentence]
+Success metric: [How I'll know it worked — measurable]
+Failure mode: [What would cause this to fail, and how to pre-empt it]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 4 — MAKE IT STICK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## 8. Spaced Repetition Cards
+Generate 3 flashcard-style Q&As from the core lessons:
+Q: [Question that tests real understanding, not just recall]
+A: [Concise answer grounded in the content]
+
+## 9. Teach It Back
+Explain the single most important idea in 2 sentences as if teaching a friend who hasn't read this. No jargon. No filler.
+
+## 10. Reflection Trigger
+What's one moment from the last 30 days where this lesson would have changed how I acted or responded?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONTEXT — CONNECT IT TO ME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+My context: [Add your role, current goals, or challenges here]
+
+Given everything above:
+- How does this apply to my specific situation?
+- What is the ONE thing I should take away if I only remember one thing?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASTE YOUR CONTENT BELOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[PASTE TRANSCRIPT OR SUMMARY HERE]`;
+
+function copyGrowthPrompt() {
+  navigator.clipboard.writeText(GROWTH_PROMPT).then(() => {
+    const btn = document.querySelector('#page-growth .btn-primary');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function renderGrowthPrompt() {
+  const el = document.getElementById('growth-prompt-display');
+  if (el) el.innerHTML = syntaxHighlight(GROWTH_PROMPT);
+}
+
+const origShowPage = showPage;
+function showPage(name) {
+  origShowPage(name);
+  if (name === 'growth') renderGrowthPrompt();
+}
 </script>
 </body>
 </html>
