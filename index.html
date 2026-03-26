@@ -923,6 +923,7 @@ function showPage(name) {
     }
   });
   if (name === 'prompt') renderPrompt(currentLens);
+  if (name === 'growth') renderGrowthPrompt();
 }
 
 function selectLens(lens, el) {
@@ -1037,11 +1038,6 @@ function renderGrowthPrompt() {
   if (el) el.innerHTML = syntaxHighlight(GROWTH_PROMPT);
 }
 
-const origShowPage = showPage;
-function showPage(name) {
-  origShowPage(name);
-  if (name === 'growth') renderGrowthPrompt();
-}
 </script>
 </body>
 </html>
