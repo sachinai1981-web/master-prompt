@@ -380,6 +380,9 @@
       <div class="nav-item" onclick="showPage('growth')">
         <div class="nav-dot"></div>Personal Growth
       </div>
+      <div class="nav-item" onclick="showPage('learning')">
+        <div class="nav-dot"></div>Learning Extraction
+      </div>
     </div>
 
     <div class="sidebar-section">
@@ -520,6 +523,84 @@
         <div class="lens-card" data-lens="ghost" onclick="pickLens('ghost', this)">
           <div class="lens-card-title">Ghost notes only</div>
           <div class="lens-card-desc">Standalone deep-dive into what wasn't said. Best run separately for maximum contrarian thinking.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEARNING EXTRACTION PAGE -->
+    <div class="page" id="page-learning">
+      <div class="page-header">
+        <h1>Learning Extraction Engine</h1>
+        <p>A focused prompt for extracting maximum value from any video, podcast, or interview transcript. Returns 4 structured sections you can paste directly into Obsidian.</p>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-label">Best for</div>
+          <div class="info-card-value">YouTube videos, podcast transcripts, interview recordings, conference talks, tutorials</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">Output format</div>
+          <div class="info-card-value">4 sections: What to Learn · What to Extract · How to Practice · What You Need — structured for Obsidian</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">vs Master Prompt</div>
+          <div class="info-card-value">Master Prompt = deep analysis for research. Learning Engine = fast extraction for action. Use this when you want to move from content to practice the same day.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">Key difference</div>
+          <div class="info-card-value">Section 3 (How to Practice) is the core — it forces every session to end with a concrete experiment you can run this week.</div>
+        </div>
+      </div>
+
+      <div class="section-map" style="margin-top:24px;">
+        <div class="section-row"><span class="section-id">01</span><span class="section-name">What to Learn — prioritised concepts, foundational vs advanced, what to skip</span><span class="section-badge badge-p1">Part 1</span></div>
+        <div class="section-row"><span class="section-id">02</span><span class="section-name">What to Extract — frameworks, mental models, named techniques, quotable lines</span><span class="section-badge badge-p1">Part 1</span></div>
+        <div class="section-row"><span class="section-id">03</span><span class="section-name">How to Practice — this week's experiment, smallest viable action, workflow plug-in</span><span class="section-badge badge-p2">Action</span></div>
+        <div class="section-row"><span class="section-id">04</span><span class="section-name">What You Need — tools, accounts, background knowledge, prerequisites</span><span class="section-badge badge-p2">Setup</span></div>
+      </div>
+
+      <div class="prompt-container" style="margin-top:32px;">
+        <div class="prompt-toolbar">
+          <div class="prompt-toolbar-left">Learning Extraction Engine · v1</div>
+          <button class="btn btn-primary" onclick="copyLearningPrompt()">Copy prompt</button>
+        </div>
+        <div class="prompt-body" id="learning-prompt-display"></div>
+      </div>
+
+      <div style="margin-top:32px;">
+        <h2 style="font-size:16px;font-weight:600;color:var(--text1);margin-bottom:16px;">Your reusable context block</h2>
+        <p style="color:var(--text2);font-size:14px;margin-bottom:12px;">Fill this in once. Paste it into the context field every time you run the prompt.</p>
+        <div class="prompt-container">
+          <div class="prompt-toolbar">
+            <div class="prompt-toolbar-left">Context block</div>
+            <button class="btn btn-primary" onclick="copyContextBlock()">Copy context</button>
+          </div>
+          <div class="prompt-body" style="white-space:pre-wrap;font-size:13px;">My context: I am a [YOUR ROLE] at [COMPANY]. I am also [SIDE PROJECT / INVESTING / BUILDING].
+I am interested in [DOMAIN 1], [DOMAIN 2], and [DOMAIN 3].
+Connect insights to whichever of these is most relevant to the content.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:32px;">
+        <h2 style="font-size:16px;font-weight:600;color:var(--text1);margin-bottom:16px;">Variants</h2>
+        <div class="tip-list">
+          <div class="tip">
+            <span class="tip-num" style="min-width:80px;">Quick</span>
+            <span class="tip-text">Short video under 10 min — <strong>remove sections 3 and 4</strong>, keep only What to Learn and What to Extract.</span>
+          </div>
+          <div class="tip">
+            <span class="tip-num" style="min-width:80px;">Action-only</span>
+            <span class="tip-text">When you've already watched it and just want next steps — <strong>ask only for section 3</strong> (How to Practice It).</span>
+          </div>
+          <div class="tip">
+            <span class="tip-num" style="min-width:80px;">Stack</span>
+            <span class="tip-text">Run Learning Extraction first for the fast pass → then feed the output into the <strong>Master Prompt</strong> for the deep analysis. Two-pass learning for high-value content.</span>
+          </div>
+          <div class="tip">
+            <span class="tip-num" style="min-width:80px;">Obsidian</span>
+            <span class="tip-text">Add "Format all output for direct paste into Obsidian: use ## headings, bullet lists, and a table for frameworks" to the end of the prompt.</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1039,6 +1120,73 @@ function renderGrowthPrompt() {
   if (el) el.innerHTML = syntaxHighlight(GROWTH_PROMPT);
 }
 
+const LEARNING_PROMPT = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LEARNING EXTRACTION ENGINE — v1
+Fast extraction from any video, podcast, or transcript
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You are a learning extraction engine. I am giving you a transcript from a [TOPIC] video.
+
+Your job is to do 4 things:
+
+1. WHAT TO LEARN (prioritized)
+   - Identify the 3-5 core concepts I must understand to apply this
+   - Flag what is foundational vs. advanced
+   - Tell me what to skip if I'm time-constrained
+
+2. WHAT TO EXTRACT (for my Obsidian vault)
+   - Key frameworks with names I can reference
+   - Mental models or decision rules
+   - Any named techniques, systems, or methodologies
+   - Quotable insight lines (1-sentence versions)
+
+3. HOW TO PRACTICE IT (immediate actions)
+   - What can I apply this week in my [sales / investing / design / AI] work?
+   - What is the smallest viable experiment I can run?
+   - What existing system in my workflow does this plug into?
+
+4. WHAT YOU NEED (prerequisites / tools / context)
+   - Tools, software, or accounts required
+   - Background knowledge assumed
+   - Any skills I need before this makes sense
+
+Format output as structured sections I can paste directly into Obsidian.
+My context: [PASTE YOUR CONTEXT HERE]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE YOUR TRANSCRIPT BELOW]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+function copyLearningPrompt() {
+  navigator.clipboard.writeText(LEARNING_PROMPT).then(() => {
+    const btn = document.querySelector('#page-learning .btn-primary');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function copyContextBlock() {
+  const text = `My context: I am a [YOUR ROLE] at [COMPANY]. I am also [SIDE PROJECT / INVESTING / BUILDING].\nI am interested in [DOMAIN 1], [DOMAIN 2], and [DOMAIN 3].\nConnect insights to whichever of these is most relevant to the content.`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('#page-learning .btn-primary');
+    const btn = btns[btns.length - 1];
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+// Render learning prompt on page load
+document.getElementById('learning-prompt-display').innerHTML = LEARNING_PROMPT
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .split('\n').map(line => {
+    if (/^━+/.test(line)) return `<span class="h1">${line}</span>`;
+    if (/^\d+\. [A-Z]/.test(line)) return `<span class="h2">${line}</span>`;
+    if (/^\[PASTE/.test(line)) return `<span class="star">${line}</span>`;
+    if (/^\[.+\]/.test(line)) return `<span class="bracket">${line}</span>`;
+    return line;
+  }).join('\n');
 </script>
 </body>
 </html>
